@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fhenix Confidential Computing Challenge</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at 20% 20%, #0f2027, #203a43, #2c5364);
+    color: #eaf6ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .main-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    width: 95%;
+    max-width: 1000px;
+    gap: 20px;
+  }
+
+  .container {
+    flex: 1 1 600px;
+    background: rgba(20, 35, 60, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+    padding: 30px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+  }
+
+  .tips {
+    flex: 1 1 300px;
+    background: rgba(40, 70, 100, 0.9);
+    border-left: 4px solid #00c8ff;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,255,255,0.15);
+    padding: 20px;
+    font-size: 0.95rem;
+    color: #b8e0f9;
+  }
+
+  h1, h2 {
+    color: #00d9ff;
+  }
+
+  button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 8px;
+    transition: all 0.3s ease;
+  }
+  button:hover { opacity: 0.9; }
+
+  .start-btn {
+    background: linear-gradient(90deg, #00d4ff, #0079ff);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0,255,255,0.3);
+  }
+
+  .option {
+    display: block;
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    color: #eaf6ff;
+    margin-top: 10px;
+  }
+
+  .option.correct { background: #00b894 !important; color: white; }
+  .option.wrong { background: #e17055 !important; color: white; }
+
+  .hidden { display: none; }
+
+  #progress {
+    font-size: 0.9rem;
+    color: #a4c8de;
+    margin-top: 10px;
+  }
+
+  @media(max-width:800px){
+    .main-container { flex-direction: column; align-items: center; }
+    .tips { width: 90%; order: 2; }
+    .container { order: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+
+  <div class="container" id="startScreen">
+    <h1>Fhenix — Confidential Computing Challenge</h1>
+    <p>Welcome to the Fhenix Confidential Computing Challenge.  
+    Test your understanding of Fully Homomorphic Encryption (FHE), confidential DeFi, and the fhEVM architecture powering the future of private smart contracts.</p>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <div class="container hidden" id="quizScreen">
+    <h2 id="questionText"></h2>
+    <div id="optionsContainer"></div>
+    <p id="progress"></p>
+  </div>
+
+  <div class="container hidden" id="resultScreen">
+    <h2>Quiz Completed!</h2>
+    <p id="scoreText"></p>
+    <button class="start-btn" onclick="restartQuiz()">Restart</button>
+  </div>
+
+  <div class="tips" id="tipsBox">
+    <h3>💡 Fhenix Tip</h3>
+    <p id="tipText">Fhenix uses Fully Homomorphic Encryption (FHE) to enable computation directly on encrypted data without decryption.</p>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {q:"What is the primary aim of Fhenix?",o:["New Layer 1 for gaming","Confidential computation for EVM via FHE","Replace Ethereum entirely","Centralized privacy DB"],a:1},
+  {q:"What is Fully Homomorphic Encryption (FHE)?",o:["Encryption that hides keys","Computation on encrypted data","Only node communication encryption","Symmetric key method"],a:1},
+  {q:"Which compatibility does Fhenix focus on?",o:["Bitcoin Script","Proprietary tools","EVM and Solidity tools","None"],a:2},
+  {q:"What is Fhenix’s FHE processor called?",o:["FHE-VM","fhEVM","CoFHE","EncryptedEVM"],a:2},
+  {q:"Which data layer supports Fhenix’s modular stack?",o:["Avalanche","Cosmos","Celestia","Polygon"],a:2},
+  {q:"Why is confidentiality a bottleneck in Web3?",o:["No one needs privacy","Blockchains are too slow","Transparency limits private use cases","Gas is expensive"],a:2},
+  {q:"Which major scaling provider partners with Fhenix?",o:["Polkadot","Offchain Labs (Arbitrum)","Cardano","Solana"],a:1},
+  {q:"Which Fhenix use case uses encrypted computation?",o:["NFT minting","Private voting and confidential trading","Public transfers","Mining"],a:1},
+  {q:"Why is FHE special vs. ZK-proofs?",o:["It’s slower","Allows arbitrary computation on encrypted data","Needs no keys","Already widely used"],a:1},
+  {q:"What is fhEVM?",o:["Modified EVM for FHE apps","A wallet","A token","A layer 0 chain"],a:0},
+  {q:"What is an FHE Coprocessor?",o:["Hardware chip","Off-chain encrypted compute helper","Consensus mechanism","Wallet module"],a:1},
+  {q:"Which cryptographer is linked to Fhenix?",o:["Vitalik Buterin","Victor Shoup","Satoshi Nakamoto","Tim Berners-Lee"],a:1},
+  {q:"Which tooling does Fhenix support?",o:["Remix, Hardhat","Only CLI","Bitcoin nodes","Rust SDK only"],a:0},
+  {q:"What FHE challenge is Fhenix solving?",o:["Low compute cost","High compute cost and scalability","No encryption","Centralization"],a:1},
+  {q:"What funding stage has Fhenix reached?",o:["Seed only","Series A","IPO","None"],a:1},
+  {q:"What’s Fhenix’s next DeFi wave?",o:["Public DeFi","Confidential DeFi","No DeFi","TradFi"],a:1},
+  {q:"What rollup stack does Fhenix use?",o:["Arbitrum Nitro","Solana","Optimism","None"],a:0},
+  {q:"What does end-to-end encryption mean for Fhenix?",o:["Encrypt only storage","Encrypt all data in storage, transit & compute","Encrypt network only","Decrypt before compute"],a:1},
+  {q:"What apps does Fhenix enable?",o:["Simple transfers","Private auctions, confidential DeFi","Centralized finance","NFT only"],a:1},
+  {q:"How does Fhenix support developers?",o:["No support","Grants, docs, and dev tools","Enterprise licenses only","Closed system"],a:1}
+];
+
+const tips = [
+  "Fhenix brings confidentiality to EVM-compatible chains via FHE.",
+  "FHE allows computations directly on encrypted data.",
+  "fhEVM lets Solidity developers build privacy-preserving smart contracts.",
+  "Fhenix integrates with Arbitrum’s Nitro stack for scalability.",
+  "Celestia is used for modular data availability in Fhenix.",
+  "Confidential DeFi is the next wave of financial privacy on-chain.",
+  "FHE Coprocessors handle encrypted workloads off-chain securely.",
+  "Victor Shoup is a noted cryptographer contributing to FHE research.",
+  "Fhenix supports Remix, Hardhat, and familiar EVM developer tools.",
+  "Fhenix offers grants and documentation for confidentiality builders."
+];
+
+let current = 0, score = 0;
+
+function startQuiz(){
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion(){
+  const q = questions[current];
+  document.getElementById("questionText").textContent = q.q;
+  const opts = document.getElementById("optionsContainer");
+  opts.innerHTML = "";
+  q.o.forEach((opt,i)=>{
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = opt;
+    btn.onclick = ()=>selectOption(btn,i);
+    opts.appendChild(btn);
+  });
+  document.getElementById("progress").textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById("tipText").textContent = tips[Math.floor(Math.random()*tips.length)];
+}
+
+function selectOption(button,choice){
+  const q = questions[current];
+  const all = document.querySelectorAll(".option");
+  all.forEach(b=>b.disabled=true);
+  if(choice===q.a){
+    button.classList.add("correct");
+    score++;
+  } else {
+    button.classList.add("wrong");
+    all[q.a].classList.add("correct");
+  }
+  setTimeout(()=>{
+    current++;
+    if(current<questions.length){
+      showQuestion();
+    } else showResult();
+  },1200);
+}
+
+function showResult(){
+  document.getElementById("quizScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.remove("hidden");
+  document.getElementById("scoreText").textContent = `Your Score: ${score} / ${questions.length}`;
+  document.getElementById("tipText").textContent = "Well done! You’ve unlocked insights into Fhenix’s confidential smart contract revolution.";
+}
+
+function restartQuiz(){
+  current=0; score=0;
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("startScreen").classList.remove("hidden");
+}
+</script>
+</body>
+</html>
